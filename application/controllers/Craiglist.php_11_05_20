@@ -1,0 +1,182 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+class Craiglist extends CI_Controller {
+
+	public function __construct(){
+		parent::__construct();
+		check_login_user();
+		$this->load->model('common_model');
+    }
+
+    public function index() {
+		
+		$this->load->library('curl');
+		
+		$condition = array(
+			'website_id' => $this->input->get('website_id'),
+			'status' => 'Y'
+		);
+		$websiteLists = $this->common_model->get_all_suburls($condition);
+
+		$condition = array(
+			'website_id' => $this->input->get('website_id'),
+			'status' => 'Y'
+		);
+		
+		$keywords = $this->db->get_where('keywords',array('website_id'=>$this->input->get('website_id')))->row()->keywords;
+		$keywords=str_replace(',','|',$keywords);
+
+		$categoryLists = $this->common_model->get_all_subcategories($condition);
+		$counter=0;
+		foreach($websiteLists as $websiteList){
+			#$websiteList['sub_url']='https://newyork.craigslist.org';
+			foreach($categoryLists as $categoryList){
+				#print $websiteList['sub_url']."-->".$categoryList['dir_name']."\n";
+				$url=$websiteList['sub_url'].'/search/'.$categoryList['dir_name'].'?query='.urlencode($keywords);
+				#$this->appendFile('going.txt',$url."\n");
+				$resultFile=$this->fetchPage($url);
+				$this->fetchListings($resultFile,$categoryList,$keywords,$websiteList);				
+			}
+			
+			/*if($counter>10){
+				break;
+			}
+			$counter++;*/
+		}
+		echo "Scraping Completed...";		
+	}
+	function fetchListings($resultFile,$categoryList,$keywords,$websiteList){
+
+		if(preg_match('/Here are some from nearby areas\./is',$resultFile,$matcher)){
+			$resultFile=$this->before($matcher[0],$resultFile);
+		}
+		while(preg_match('/<li\s*class="result-row"\s*data-pid="\d+".*?>\s*<a\s*href="(.*?)"/is',$resultFile,$matcher)){
+			$resultFile=$this->after($matcher[0],$resultFile);
+			$url=$matcher[1];
+			#$this->appendFile('url.txt',$categoryList['dir_name']."-->".$url."\n");
+			$resultId = $this->db->get_where('results',array('job_url'=>$url))->row()->result_id;
+			if(empty($resultId)){
+				$this->scrapeData($url,$categoryList,$keywords,$websiteList);
+			}
+		}
+	}
+
+	function scrapeData($url,$categoryList,$keywords,$websiteList){
+		$insertResult=0;
+		$resultFile=$this->fetchPage($url);
+		$this->writeToFile('result.html',$resultFile);
+		$resultData=Array();
+		$resultData['job_url']=$url;
+		$resultData['website_id']=$categoryList['website_id'];
+		$resultData['suburl_id']=$websiteList['suburl_id'];
+		$resultData['sub_category_id']=$categoryList['sub_cat_id'];
+		$resultData['keywords']=$keywords;
+		if(preg_match('/<span id="titletextonly">(.*?)<\/span>/is',$resultFile,$matcher)){
+			$resultData['title']=$matcher[1];
+		}
+		if(preg_match('/<p\s*class="postinginfo reveal">posted:\s*<time\s*class="date\s*timeago"\s*datetime="(\d\d\d\d-\d\d-\d\d)/is',$resultFile,$matcher)){
+			$resultData['posted_date']=$matcher[1];
+		}
+		if(preg_match('/<div\s*class="print-qrcode".*?>(.*?)<div\s*class="postinginfos">/is',$resultFile,$matcher)){
+			$resultData['description']=$matcher[1];
+			$resultData['description']=strip_tags($resultData['description'],'');
+		}
+		if(!empty($this->input->get('mak')) && $this->input->get('mak')=='Y'){
+			$resultData['exact_match']='Y';
+		}else{
+			$resultData['exact_match']='N';
+		}
+		$resultFile=strip_tags($resultFile,'');
+		
+		if($this->checkKeywords($resultFile,$keywords)){
+			$resultData['keywords']=str_replace('|',',',$keywords);	
+			$resultData['scraped_date']=date('Y-m-d');	
+			$resultData = $this->security->xss_clean($resultData);
+			$this->common_model->insert($resultData, 'results');
+		}
+	}
+	function checkKeywords($resultFile,$keywords){
+		if(empty($this->input->get('mak')) || $this->input->get('mak')=='N'){
+			if(preg_match("/($keywords)/is",$resultFile,$match2)){
+				return true;
+			}
+		}elseif($this->input->get('mak')=='Y'){
+
+			$keywordList=explode('|',$keywords);
+			foreach($keywordList as $key =>$value){
+				if(!preg_match("/$value/is",$resultFile,$match2)){
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
+	function fetchPage($url){
+
+		$this->curl->create($url);
+
+		//  To Temporarily Store Data Received From Server
+		#$this->curl->option('buffersize', 10);
+		//  To support Different Browsers
+		$this->curl->option('useragent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2');
+		//  To Receive Data Returned From Server
+		$this->curl->option('returntransfer', 1);
+		//  To follow The URL Provided For Website
+		$this->curl->option('followlocation', 1);
+		//  To Retrieve Server Related Data
+		$this->curl->option('HEADER', true);
+		//  To Set Time For Process Timeout
+		$this->curl->option('connecttimeout', 600);
+		//  To Execute 'option' Array Into cURL Library & Store Returned Data Into $data
+		$data = $this->curl->execute();
+		//  To Display Returned Data
+		return $data;
+
+	}
+	function before ($inthis, $inthat)
+	{
+		return substr($inthat, 0, strpos($inthat, $inthis));
+	} 	
+
+	function between ($inthis, $that, $inthat)
+	{
+		return $this->before($that, $this->after($inthis, $inthat));
+	}
+
+	function after ($inthis, $inthat)
+	{
+		if (!is_bool(strpos($inthat, $inthis)))
+		return substr($inthat, strpos($inthat,$inthis)+strlen($inthis));
+	}
+	function removeSpaces($str)
+	{
+		$str=preg_replace('/<.*?>/is','',$str);
+ 		$str=preg_replace('/^\s+/is',"",$str);
+ 		$str=preg_replace('/\s+/is'," ",$str);
+ 		$str=preg_replace('/\s+$/is',"",$str);
+ 		$str=preg_replace("/\n/"," ",$str);
+ 		$str=preg_replace("/\r/"," ",$str);
+ 		$str=preg_replace("/\t/"," ",$str);
+ 		#$str=preg_replace("/'$/","",$str);
+ 		return $str;
+	}
+	function removeCur($str)
+	{
+		$str=preg_replace('/^\$/is','',$str);
+ 		return $str;
+	}
+	function writeToFile($fileName,$data){
+		$fh = fopen($fileName, 'w');
+		fwrite($fh, $data);
+		fclose($fh);
+
+	}
+	function appendFile($fileName,$message)
+	{
+		$myFile = $fileName;
+		$fh = fopen($myFile, 'a');
+		fwrite($fh, $message);
+		fclose($fh);
+	}
+	
+}
