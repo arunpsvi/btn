@@ -15,6 +15,7 @@ jquery/*
 svi/*
 uploads/*
 ztemp/*
+sql/*
 application/config/*
 #codeigniter 3
 application/logs/*
