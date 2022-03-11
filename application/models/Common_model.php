@@ -486,9 +486,7 @@ class Common_model extends CI_Model {
     }
     function get_job_details($condition=Array()){
         
-		$this->db->select('res.*');
-        $this->db->from('results res');
-		$this->db->where($condition);
+		$accessSearchqry='';
         /* Don't allow unauthoruzed users to access the detail */
         if($this->session->userdata('role') !='ADMIN'){
             $userID= $this->session->userdata('id');
@@ -503,8 +501,14 @@ class Common_model extends CI_Model {
             $ids = join("','",$arr);   
             
             $accessSearchqry=" res.search_id IN ('$ids') ";
+            
+        }
+        if($this->session->userdata('role') !='ADMIN' && !empty($accessSearchqry)){
             $this->db->where($accessSearchqry);
-        }        
+        }
+        $this->db->select('res.*');
+        $this->db->from('results res');
+		$this->db->where($condition);  
         $query = $this->db->get();
         return $query->row(); 
     }
