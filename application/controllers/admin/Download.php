@@ -158,6 +158,8 @@ class Download extends CI_Controller {
 		$jobListings = $this->common_model->get_job_listings($condition, $config['per_page'], $page,$sort_order,$botIdArr);
 		$data['jobListings'] = $jobListings;
 		$data['total_rows'] = $config['total_rows'];
+		//echo"<pre>";
+		//print_r($data);exit;
 		if($data['website_id']==1){
 			$data['main_content'] = $this->load->view('admin/download/craiglist', $data, TRUE);
 		}elseif($data['website_id']==2){
@@ -167,6 +169,52 @@ class Download extends CI_Controller {
 		}
 	    $this->load->view('admin/index', $data);
     }
+	function mybots(){
+		//echo"<pre>";
+		//print_r($_GET);exit;
+		$searchBotCondition=array();
+		if(!empty($this->input->get('wid'))){
+			$searchBotCondition['keyw.website_id']=$this->input->get('wid');
+		}
+
+		$defaultWebsiteId=0;
+		if(!empty($this->input->get('wid'))){
+			$defaultWebsiteId=$this->input->get('wid');
+		}
+		$website_list = $this->common_model->get_all_websites();
+		
+		$websiteListArr=svi_buildArray($website_list,'id','url','All');
+		if(empty($defaultWebsiteId)){
+			foreach($websiteListArr as $key=>$value){
+				$defaultWebsiteId=$key;
+				break;
+			}
+		}
+		
+		$data['bots']=$this->common_model->get_all_searches($searchBotCondition);
+		
+		
+		$data['websiteListArr']=$websiteListArr;
+
+		$config['base_url'] = site_url().'/admin/download/mybots';
+		$config['uri_segment'] = 3;
+		$config['per_page'] = 50;
+		//$config['total_rows'] = $this->login_model->getUsersAccessDetailTotal($condition);
+		$config['page_query_string'] = TRUE;
+		$config['reuse_query_string'] = true;
+
+		$this->pagination->initialize($config);
+		$page= $this->input->get('per_page');
+		$sort_order= $this->input->get('sort_order');
+		$data['pagination'] = $this->pagination->create_links();
+
+
+		//$userAccessDetails = $this->login_model->getUsersAccessDetail($condition, $config['per_page'], $page,$sort_order);
+		
+		$data['website_id']=$defaultWebsiteId;
+        $data['main_content'] = $this->load->view('admin/download/mybots', $data, TRUE);
+        $this->load->view('admin/index', $data);
+	}
 
 	function downloadCSV(){
 		$defaultWebsiteId=0;
@@ -200,9 +248,12 @@ class Download extends CI_Controller {
 		if(!empty($this->input->get('website_id'))){
 			$condition['res.website_id']= $this->input->get('website_id');
 		}
-		if(!empty($this->input->get('qualify'))){
+		
+		if(!empty($this->input->get('qualify')) && $this->input->get('qualify')!='undefined'){
 			$condition['res.qualify']= $this->input->get('qualify');
 		}
+		
+		
 		if(!empty($this->input->get('bot_name'))){
 			$botIds=preg_replace('/BOT_/i','',$this->input->get('bot_name'));
 			$botIdArr=explode(',',$botIds);
@@ -210,6 +261,7 @@ class Download extends CI_Controller {
 		
 		$data['website_id']=$defaultWebsiteId;
 		$data['websiteListArr'] = $websiteListArr;
+		
 		$jobListings = $this->common_model->get_job_listings($condition,'','','',$botIdArr);
 		
 		$fileName = $websiteListArr[$defaultWebsiteId].date('Y-m-d').'.xlsx';
@@ -448,6 +500,17 @@ class Download extends CI_Controller {
 	# createArray -- Create array of all columns available in the table of database
 	function createJsonObj($jobDetail){
 		$jsonArr=Array();
+		if($this->session->userdata('role') == 'ENDUSER'){
+			$jsonArr['qualify']='';	
+			$jsonArr['name']='';	
+			$jsonArr['phone']='';	
+			$jsonArr['email']='';
+		}else{
+			$jsonArr['qualify']=$jobDetail->qualify;	
+			$jsonArr['name']=$jobDetail->name;	
+			$jsonArr['phone']=$jobDetail->phone;	
+			$jsonArr['email']=$jobDetail->email;
+		}
 		$jsonArr['result_id']=$jobDetail->result_id;	
 		$jsonArr['bot_name']=$this->db->get_where('keywords',array('keyword_id'=>$jobDetail->search_id))->row()->search_name;	
 		$jsonArr['website_name']=$this->db->get_where('websites',array('id'=>$jobDetail->website_id))->row()->name;	
@@ -458,10 +521,6 @@ class Download extends CI_Controller {
 		$jsonArr['compensation']=$jobDetail->compensation;	
 		$jsonArr['description']=$jobDetail->description;	
 		$jsonArr['keywords']=$jobDetail->keywords;	
-		$jsonArr['qualify']=$jobDetail->qualify;	
-		$jsonArr['name']=$jobDetail->name;	
-		$jsonArr['phone']=$jobDetail->phone;	
-		$jsonArr['email']=$jobDetail->email;	
 		$jsonArr['applications']=$jobDetail->applications;	
 		$jsonArr['posted_date']=$jobDetail->posted_date;	
 		$jsonArr['location']=$jobDetail->location;	

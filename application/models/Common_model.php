@@ -222,6 +222,22 @@ class Common_model extends CI_Model {
         $query = $this->db->get();
         return $query->row(); 
 	}
+    function check_user_authenticity($apikey){
+        $this->db->select('*');
+        $this->db->from('users');
+		$this->db->where('api_key',$apikey);		
+        $query = $this->db->get();
+        //print $this->db->last_query();
+        return $query->row();
+    }
+    function check_user_bot_authenticity($condition){
+        $this->db->select('*');
+        $this->db->from('search_access');
+		$this->db->where($condition);		
+		$query = $this->db->get();
+       // print $this->db->last_query();
+        return $query->row();
+    }
 
 	function get_subcategories($sub_cat){
 

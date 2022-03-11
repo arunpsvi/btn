@@ -91,13 +91,15 @@
 								<input type="date" name="scraped_date_end" id="scraped_date_end" class="form-control my-datepicker" value="<?php if(!empty($scraped_date_end)) { echo $scraped_date_end; } ?>" autocomplete="<?php echo $autocomplete; ?>">
 							</div>
 						</div>
+						<?php if($userRole != 'ENDUSER'){?>
 						<div class="col-md-2">
 							<div class="form-group" id='qualifydropdown'>
 								<label class="control-label">Qualify</label>
 								<?php echo form_dropdown('qualify', $qualifySearchArr, $qualify,'class="form-control" id="qualify"'); ?>
 							</div>
 						</div>
-
+						<?php } ?>
+						<?php if($userRole != 'ENDUSER'){?>
 						<div class="col-md-4">
 							<div class="form-group">
 								<label class="control-label ">Show/Hide Columns</label>
@@ -110,6 +112,7 @@
 							</div>
 						</div>
 						<input type="hidden" name="hidSelectedOptions" id="hidSelectedOptions" value="<?php echo $hidSelectedOptions; ?>">									
+						<?php } ?>
 					</div>
 					
 					<div class="row">
@@ -119,11 +122,13 @@
 								
 								<button type="submit" class="btn btn-rounded btn-sm btn-info"> <i class="fa fa-search"></i> Search</button>
 <button type="button" id="download" class="btn btn-rounded btn-sm btn-info"> <i class="fa fa-download"></i> Download</button>
+
 <!-- <button type="button" id="savemyfilter" class="btn btn-rounded btn-sm btn-info"> <i class="fa fa-save"></i> Save My Filter</button> -->
+<?php if($userRole != 'ENDUSER'){ ?>
 <button type="button" id="deleteResults" class="btn btn-rounded btn-sm btn-danger"> <i class="fa fa-trash"></i> Delete</button>
 <?php if($userRole=='ADMIN'){ ?>
 <button type="button" id="deleteAll" title='It will delete all matching records filld in search box.' class="btn btn-rounded btn-sm btn-danger"> <i class="fa fa-trash"></i> Delete All</button>
-<?php } ?>
+<?php }} ?>
 							</div>
 						</div>
 						
@@ -163,13 +168,17 @@
 
 								?>
 								<?php //echo anchor('admin/download/'.$queryString, 'Qualify<i class="fa '.$sortIcon.' m-l-5" ></i>',array('class' => 'font-weight-bold text-white')); ?>
+								<?php if($userRole != 'ENDUSER'){?>
 								<th style='min-width:40px !important;' class='font-weight-bold text-white'><i class="fa fa-trash m-r-5"></i><input type="checkbox" class="form-check-input" name="deleteAllResults" id="deleteAllResults"></th>
+								<?php } ?>
 								<th class='font-weight-bold text-white'>Action</th>
 								<th class='font-weight-bold text-white'>No.</th>
+								<?php if($userRole != 'ENDUSER'){?>
 								<th class='font-weight-bold text-white shdiv_Qualify'>Qualify</th>
 								<th class='font-weight-bold text-white shdiv_Name'>Name</th> 
 								<th class='font-weight-bold text-white shdiv_Phone'>Phone</th> 
-								<th class='font-weight-bold text-white shdiv_Email'>Email</th> 
+								<th class='font-weight-bold text-white shdiv_Email'>Email</th>
+								<?php } ?> 
 								<th class='font-weight-bold text-white shdiv_Source'>Source</th> 
 								<th style='min-width:80px !important;' class='font-weight-bold text-white shdiv_Scraped_Date'>Scraped Date</th> 
 								<th style='min-width:80px !important;' class='font-weight-bold text-white shdiv_Posted_Date'>Posted Date</th> 
@@ -203,17 +212,21 @@
 						$result_id =$jobListing['result_id'];
 						?>
 
-						<tr class='BOT_<?php echo $jobListing['search_id']; ?>'>                                   
+						<tr class='BOT_<?php echo $jobListing['search_id']; ?>'>  
+						<?php if($userRole != 'ENDUSER'){?>                              
 							<td><input type="checkbox" class="class-name record_delete" name="record_delete[]" value='<?php echo $jobListing['result_id']; ?>'></td>
+						<?php } ?>
 							<td>
 								<a href="#" title="View Details" class="viewJob" id='jid_<?php echo $jobListing['result_id']; ?>' ><i class="fa fa-eye icon-blue m-r-5"></i></a>
 								<a href="<?php echo $jobListing['job_url']; ?>" target='_blank' title="View Post"><i class="fa fa-anchor icon-blue m-r-5"></i></a>
 							</td>
 							<td><?php echo $jobListing['result_id']; ?></td>
-							<td class='shdiv_Qualify'><?php $name="qualify_$result_id"; echo form_dropdown($name, $qualifyArr, $jobListing['qualify'],' style="height:22px;" id="'.$name.'" class="class-qualify "'); ?></td>
-							<td class='shdiv_Name'><input type='text' class="class-name" name='<?php echo 'name_'.$result_id; ?>' id='<?php echo 'name_'.$result_id; ?>' value='<?php echo $jobListing['name']; ?>' /></td>
-							<td class='shdiv_Phone'><input type='text' class="class-phone" name='<?php echo 'phone_'.$result_id; ?>' id='<?php echo 'phone_'.$result_id; ?>' value='<?php echo $jobListing['phone']; ?>' /></td>
-							<td class='shdiv_Email'><input type='text' class="class-email" name='<?php echo 'email_'.$result_id; ?>' id='<?php echo 'email_'.$result_id; ?>' value='<?php echo $jobListing['email']; ?>' /></td>
+							<?php if($userRole != 'ENDUSER'){?>
+								<td class='shdiv_Qualify'><?php $name="qualify_$result_id"; echo form_dropdown($name, $qualifyArr, $jobListing['qualify'],' style="height:22px;" id="'.$name.'" class="class-qualify "'); ?></td>
+								<td class='shdiv_Name'><input type='text' class="class-name" name='<?php echo 'name_'.$result_id; ?>' id='<?php echo 'name_'.$result_id; ?>' value='<?php echo $jobListing['name']; ?>' /></td>
+								<td class='shdiv_Phone'><input type='text' class="class-phone" name='<?php echo 'phone_'.$result_id; ?>' id='<?php echo 'phone_'.$result_id; ?>' value='<?php echo $jobListing['phone']; ?>' /></td>
+								<td class='shdiv_Email'><input type='text' class="class-email" name='<?php echo 'email_'.$result_id; ?>' id='<?php echo 'email_'.$result_id; ?>' value='<?php echo $jobListing['email']; ?>' /></td>
+							<?php } ?>
 							<td class='shdiv_Source'><?php echo $jobListing['url']; ?></td>
 							<td class='shdiv_Scraped_Date'><?php echo $jobListing['scraped_date']; ?></td>
 							<td class='shdiv_Posted_Date'><?php echo $jobListing['posted_date']; ?></td>
@@ -323,7 +336,8 @@ $(document).ready(function(){
 	
 	
 	var hidValue = $("#hidSelectedOptions").val();
-	if(hidValue!=''){
+	//alert(typeof(hidValue));
+	if(hidValue!='' && typeof(hidValue)!='undefined'){
 		var selectedOptions = hidValue.split(",");
 		for(var i in selectedOptions) {
 			var optionVal = selectedOptions[i];
@@ -486,6 +500,12 @@ $(document).ready(function(){
 				}					
 			}
 		});		
+	});
+	$('#mybots').on('click', function() {
+		var website_id=$('#website_id').val();
+		var url='<?php echo site_url("admin/download/mybots"); ?>';
+		url=url+'?wid='+website_id;
+		location.href=url;
 	});
 	
 	$("#savemyfilter").on('click', function() {

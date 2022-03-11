@@ -87,12 +87,24 @@
 									</select>
 								</div>
 							</div>
+							<div class="col-md-2">
+								<div class="form-group">
+									<label class="control-label required">API Access</label>
+									<select class="form-control required" name='api_access' id='api_access_status'>										
+										<option value='0' <?php if($api_access=='0') { echo " selected ";} ?>>No</option>
+										<option value='1' <?php if($api_access=='1') { echo " selected ";} ?>>Yes</option>
+									</select>
+								</div>
+							</div>
 							<div class="col-md-4" id='div_useraccess'>
 								<div class="form-group">
 									<label class="control-label ">User Access</label>
 									<?php echo form_dropdown('useraccess[]', $allSearchesArr, $allSearchesArr,'multiple="multiple" class="3col active" id="useraccess"'); ?>    								
 								</div>
 							</div>
+							
+							
+
 							<input type='hidden' name='hidSearchOptions' id='hidSearchOptions' value="<?php if(!empty($selectedSearchesToStr)){ echo $selectedSearchesToStr; } ?>" >
 							<?php } ?>
 							<?php if(empty($user_id)){ ?>
@@ -110,6 +122,19 @@
 							</div>
 							
 						</div>
+						<?php
+							if($api_access=='1'){ ?>
+							<div class="row">
+								<div class="col-md-4">
+									<div class="form-group">
+										<label class="control-label ">API Key</label>
+										<input type="text" readonly name="apikey" id="apikey" class="form-control" placeholder="" value="<?php echo $api_key;?>">
+									</div>
+								</div>
+							</div>
+
+							
+							<?php }	?>
 						<div class="row">
 							<div class="col-md-2">
 								<div class="form-actions">

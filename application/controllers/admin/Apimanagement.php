@@ -1,41 +1,41 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class User extends CI_Controller {
+class Apimanagement extends CI_Controller {
 
 	public function __construct(){
         parent::__construct();
         check_login_user();
-		$this->load->model('common_model');
-		$this->load->model('search_model');
+		$this->load->model('common_model');		
 		$this->load->model('login_model');
-		$this->load->library('form_validation');
-		$this->load->library('pagination');	
+		
     }
 
-    public function index() {
-		
-        if($this->session->userdata('role')=='ADMIN'){
+    public function index() {		
+        if($this->session->userdata('role')=='ADMIN' || $this->session->userdata('role')=='ENDUSER'){
 			$breadcrumbs[]='<li><a href="'.site_url('admin/user/all_user_list').'">Users List</a></li>';
 		}else{
 			 redirect(site_url('admin/dashboard'));
 		}
 		$data = array();
-        $data['page_title'] = 'User Management';
+        $data['page_title'] = 'API Management';
 		
 		$roles = $this->common_model->get_user_roles();
 		$userRoles=Array();
 		foreach ($roles as $role){
 			$userRoles[$role['role_id']]=$role['role_display'];
 		}
-
-		$allSearchesList = $this->common_model->get_all_searches(Array(),'search_name');
-		$allSearchesArr=svi_buildArray($allSearchesList,'keyword_id','search_name');
-		$data['allSearchesArr'] = $allSearchesArr;
+		//echo"<pre>";
+		//print_r($this->session->userdata);exit;
+		$userId=$this->session->userdata['id'];
+		$userDetails = $this->common_model->get_single_user_info($userId);
+		//echo"<pre>";
+		//print_r($userDetails);exit;
 
 		$data['user_roles']=$userRoles;
-		$data['breadcrumbs']=$breadcrumbs;
-		$data['action']=site_url('admin/user/add');
-        $data['main_content'] = $this->load->view('admin/user/add', $data, TRUE);
+		$data['api_key']=$userDetails->api_key;
+		$data['api_access']=$userDetails->api_access;
+		$data['action']=site_url('admin/apimanagement/');
+        $data['main_content'] = $this->load->view('admin/apimanagement/api_home', $data, TRUE);
         $this->load->view('admin/index', $data);
     }
 

@@ -114,6 +114,7 @@
 								<input type="date" name="scraped_date_end" id="scraped_date_end" class="form-control my-datepicker" value="<?php if(!empty($scraped_date_end)) { echo $scraped_date_end; } ?>" autocomplete="<?php echo $autocomplete; ?>">
 							</div>
 						</div>
+						<?php if($userRole != 'ENDUSER'){?>
 						<div class="col-md-2">
 							<div class="form-group" id='qualifydropdown'>
 								<label class="control-label">Qualify</label>
@@ -121,6 +122,8 @@
 							</div>
 						</div>
 
+						<?php } ?>
+						<?php if($userRole != 'ENDUSER'){?>
 						<div class="col-md-4">
 							<div class="form-group">
 								<label class="control-label ">Show/Hide Columns</label>
@@ -137,7 +140,9 @@
 							</div>
 							
 							<input type="hidden" name="hidSelectedOptions" id="hidSelectedOptions" value="<?php echo $hidSelectedOptions; ?>">
+						<?php } ?>
 					</div>
+					
 					
 					<div class="row">
 						<div class="col-md-12">
@@ -146,7 +151,9 @@
 								<button type="submit" class="btn btn-rounded btn-sm btn-info"> <i class="fa fa-search"></i> Search</button>
 <button type="button" id="download" class="btn btn-rounded btn-sm btn-info"> <i class="fa fa-download"></i> Download</button>
 <!--<button type="button" id="savemyfilter" class="btn btn-rounded btn-sm btn-info"> <i class="fa fa-save"></i> Save My Filter</button>-->
+<?php if($userRole != 'ENDUSER'){?>
 <button type="button" id="deleteResults" class="btn btn-rounded btn-sm btn-danger"> <i class="fa fa-trash"></i> Delete</button>
+<?php } ?>
 <?php if($userRole=='ADMIN'){ ?>
 <button type="button" id="deleteAll" title='It will delete all matching records filld in search box.' class="btn btn-rounded btn-sm btn-danger"> <i class="fa fa-trash"></i> Delete All</button>
 <?php } ?>
@@ -190,11 +197,15 @@
 
 								?>
 								<?php //echo anchor('admin/download/'.$queryString, 'Qualify<i class="fa '.$sortIcon.' m-l-5" ></i>',array('class' => 'font-weight-bold text-white')); ?>
+								<?php if($userRole != 'ENDUSER'){?>
 								<th style='min-width:40px !important;' class='font-weight-bold text-white'><i class="fa fa-trash m-r-5"></i><input type="checkbox" class="form-check-input" name="deleteAllResults" id="deleteAllResults"></th>
+								<?php } ?>
 								<th class='font-weight-bold text-white'>Action</th>
 								<th class='font-weight-bold text-white'>No.</th>
+								<?php if($userRole != 'ENDUSER'){?>
 								<th class='font-weight-bold text-white shdiv_Qualify'>Qualify</th>
 								<th class='font-weight-bold text-white shdiv_DecisionMaker'>Decision Maker</th>
+								<?php } ?>
 								<th class='font-weight-bold text-white shdiv_Post_Title'>Post Title</th>							
 								<th class='font-weight-bold text-white shdiv_Post_Url'>Post Url</th>
 								<th class='font-weight-bold text-white shdiv_Compensation'>Compensation</th>
@@ -265,12 +276,14 @@
 							$result_id =$jobListing['result_id'];
 
 						?>
-						<tr class='BOT_<?php echo $jobListing['search_id']; ?>'>     
+						<tr class='BOT_<?php echo $jobListing['search_id']; ?>'>  
+						<?php if($userRole != 'ENDUSER'){?>
 							<td ><input type="checkbox" class="class-name record_delete" name="record_delete[]" value='<?php echo $jobListing['result_id']; ?>'></td>
+						<?php } ?>
 							<td>
 								<a href="#" title="View Details" class="viewJob" id='jid_<?php echo $jobListing['result_id']; ?>' ><i class="fa fa-eye icon-blue m-r-5"></i></a>
 								<a href="<?php echo $jobListing['job_url']; ?>" target='_blank' title="View Post"><i class="fa fa-anchor icon-blue m-r-5"></i></a>
-								<?php if(!empty($jobListing['companyWebsite'])){ ?>
+								<?php if(!empty($jobListing['companyWebsite']) && $userRole != 'ENDUSER') { ?>
 									<?php //if(!empty($jobListing['companyWebsite'])){
 										?>
 										<a class='block' id='<?php echo "block##".$jobListing['result_id']; ?>' href="#" title="Add to reject list"><i class="fa fa-ban text-danger m-r-5"></i></a>
@@ -278,8 +291,10 @@
 								<?php } ?>
 							</td>
 							<td><?php echo $jobListing['result_id']; ?></td>
+							<?php if($userRole != 'ENDUSER'){?>
 							<td class='shdiv_Qualify'><?php $name="qualify_$result_id"; echo form_dropdown($name, $qualifyArr, $jobListing['qualify'],' style="height:22px;" id="'.$name.'" class="class-qualify"'); ?></td>
 							<td class='shdiv_DecisionMaker'><input type='text' class="class-decision_maker" name='<?php echo 'decisionmaker_'.$result_id; ?>' id='<?php echo 'decisionmaker_'.$result_id; ?>' value='<?php echo $jobListing['decision_maker']; ?>' /></td>
+							<?php } ?>
 							<td class='shdiv_Post_Title' ><?php echo $jobListing['title']; ?></td>
 							<td class='shdiv_Post_Url'><a target='_blank' href="<?php echo $jobListing['job_url']; ?>"><?php echo $jobListing['job_url']; ?></a></td>
 							<td class='shdiv_Compensation'><?php echo $jobListing['compensation']; ?></td>
@@ -408,7 +423,7 @@
 $(document).ready(function(){
 	
 	var hidValue = $("#hidSelectedOptions").val();
-	if(hidValue!=''){
+	if(hidValue!='' && typeof(hidValue)!='undefined'){
 		var selectedOptions = hidValue.split(",");
 		for(var i in selectedOptions) {
 			var optionVal = selectedOptions[i];

@@ -28,8 +28,8 @@
                                     <th>Mobile</th>                                    
                                     <th>Role</th>
                                    	<th>Login Status</th>
-                                   	<th>Email Notification</th>
-                                   	<th width="25%">Assigned Bots</th>
+                                    <th>API Access</th>
+                                   	<th>Email Notification</th>                                   	
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -71,6 +71,13 @@
                                             <div class="label label-table label-success">Active</div>
                                         <?php endif ?>
                                     </td>
+                                    <td>
+                                        <?php if ($user['api_access'] == 0): ?>
+                                            <div class="label label-table label-danger">NO</div>
+                                        <?php else: ?>
+                                            <div class="label label-table label-success">Yes</div>
+                                        <?php endif ?>
+                                    </td>
 
 									<td>
                                         <?php if ($user['email_notification'] == 1): ?>
@@ -79,9 +86,7 @@
                                             <div class="label label-table label-success">No</div>
                                         <?php endif ?>
                                     </td>
-                                    <td>
-                                        <?php echo  $botNames;?>
-                                    </td>
+                                    
 									
                                     
 

@@ -29,7 +29,7 @@ background:black !important;
 				
 					
 					 <ul class="nav navbar-top-links navbar-right pull-right">
-					
+					 	<?php if($this->session->userdata('role')!='ENDUSER'){ ?>
 						<li class="dropdown"> 
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#" id='notification-bell'><i class="icon-bell"></i><strong id='notification_total'><?php if($totalNotification>0){ echo $totalNotification; } ?></strong>
 								<div class="notify"><span class=""></span><span class=""></span></div>
@@ -44,8 +44,9 @@ background:black !important;
 									<li class="divider"></li>
 								<?php } ?>							
 							</ul>
-                        <!-- /.dropdown-tasks -->
-                    </li>
+                        <!-- /.dropdown-tasks -->						
+                    	</li>
+						<?php } ?>
                     <!-- /.dropdown -->
                     <li class="dropdown">
                         <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#">
@@ -85,20 +86,32 @@ background:black !important;
 							</ul>
 						</li>
 					<?php } ?>
-					<?php if($this->session->userdata('role')=='ADMIN' || $this->session->userdata('role')=='EMPLOYEE' ){ ?>
+					<?php if($this->session->userdata('role')=='ADMIN' || $this->session->userdata('role')=='EMPLOYEE' || $this->session->userdata('role')=='ENDUSER'){ ?>
 						<li><a href="javascript:void(0);" class="waves-effect"><i class="fa fa-cogs fa-fw"></i> <span class="hide-menu">Job Post Bots<span class="fa arrow"></span></a>
 							<ul class="nav nav-second-level">
 								<!--<li> <a href="<?php echo site_url('admin/keywords') ?>">Manage Keywords</a></li>-->
 								<?php if($this->session->userdata('role')=='ADMIN'){ ?>
 									<li> <a href="<?php echo site_url('admin/searches') ?>">Create Bot</a></li>
-									
 								<?php } ?>
+
+								<?php if($this->session->userdata('role')!='ENDUSER'){ ?>
 								<li> <a href="<?php echo site_url('admin/scrape') ?>">Manage Bots</a></li>
+								<?php } ?>
+								<?php if($this->session->userdata('role')=='ENDUSER'){ ?>
+									<li> <a href="<?php echo site_url('admin/download/mybots') ?>">My Bots</a></li>
+								<?php } ?>
 								<li> <a href="<?php echo site_url('admin/download') ?>">Download Records</a></li>
-								<li> <a href="<?php echo site_url('admin/downloadarchive') ?>">Archived records</a></li>
+
+								<?php if($this->session->userdata('role')!='ENDUSER'){ ?>
+								<li> <a href="<?php echo site_url('admin/downloadarchive') ?>">Archived </a></li>
+								<?php } ?>
+								
 							</ul>
 						</li>
 					<?php } ?>
+						
+					<li> <a href="<?php echo site_url('admin/apimanagement') ?>" class="waves-effect"><i class="ti-dashboard p-r-10"></i> <span class="hide-menu">API Access</span></a> </li>
+
 					<?php if($this->session->userdata('role')=='ADMIN'){ ?>
 						<li><a href="javascript:void(0);" class="waves-effect"><i class="fa icon-user fa-fw"></i> <span class="hide-menu">User Management<span class="fa arrow"></span></a>
 							<ul class="nav nav-second-level">

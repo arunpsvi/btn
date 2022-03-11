@@ -17,6 +17,55 @@
 	    }
 	}
 
+	if(!function_exists('check_user_authenticity')){
+		function check_user_authenticity($apikey){ 
+			$flag=0; 
+			$ci = get_instance();	        
+	        $ci->load->model('common_model');
+	        $option = $ci->common_model->check_user_authenticity($apikey); 		
+			if(!empty($apikey)){
+				
+				if(($option->api_access ==1) && ($option->status ==1) ){
+					$bot_id=$ci->input->get('bid');
+					if(!empty($bot_id)){
+						$bot_condition=array(
+							'search_id'=>$bot_id,
+							'user_id'=>$option->user_id
+						);
+						$bot_option = $ci->common_model->check_user_bot_authenticity($bot_condition); 
+						
+						if(!empty($bot_option->user_id)){
+							$flag=1;
+						}else{
+							$ci->response(array(
+								"status"=>201,
+								"message"=>"unauthorized access", 
+							),REST_Controller::HTTP_CREATED);
+						}
+					}else{
+						$ci->response(array(
+							"status"=>201,
+							"message"=>"key in bot id", 
+						),REST_Controller::HTTP_CREATED);
+					}		
+					
+				}else{
+					$ci->response(array(
+						"status"=>201,
+						"message"=>"Unauthorized Access", 
+					),REST_Controller::HTTP_CREATED);
+				}
+				
+			}else{
+				$ci->response(array(
+					"status"=>201,
+					"message"=>"Please send valid API key", 
+				),REST_Controller::HTTP_CREATED);
+			}
+			return $flag;		
+	    }
+		
+	}
 	if(!function_exists('check_power')){
 	    function check_power($type){        
 	        $ci = get_instance();
