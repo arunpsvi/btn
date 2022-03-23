@@ -1,6 +1,5 @@
 <?php
 	$showHideArray=Array();
-
 	$showHideArray['shdiv_Qualify']='Qualify';
 	$showHideArray['shdiv_Name']='Name';
 	$showHideArray['shdiv_Phone']='Phone';
@@ -23,6 +22,10 @@
 		}
 	}
 	$hidSelectedOptions=rtrim($hidSelectedOptions, ',');
+	$readonlyForEndUser='';
+	if($userRole == 'ENDUSER'){
+		$readonlyForEndUser=' disabled ';
+	}
 ?>
     <!-- Start Page Content -->
 
@@ -91,14 +94,14 @@
 								<input type="date" name="scraped_date_end" id="scraped_date_end" class="form-control my-datepicker" value="<?php if(!empty($scraped_date_end)) { echo $scraped_date_end; } ?>" autocomplete="<?php echo $autocomplete; ?>">
 							</div>
 						</div>
-						<?php if($userRole != 'ENDUSER'){?>
+						<?php //if($userRole != 'ENDUSER'){?>
 						<div class="col-md-2">
 							<div class="form-group" id='qualifydropdown'>
 								<label class="control-label">Qualify</label>
 								<?php echo form_dropdown('qualify', $qualifySearchArr, $qualify,'class="form-control" id="qualify"'); ?>
 							</div>
 						</div>
-						<?php } ?>
+						<?php //} ?>
 						<?php if($userRole != 'ENDUSER'){?>
 						<div class="col-md-4">
 							<div class="form-group">
@@ -173,12 +176,12 @@
 								<?php } ?>
 								<th class='font-weight-bold text-white'>Action</th>
 								<th class='font-weight-bold text-white'>No.</th>
-								<?php if($userRole != 'ENDUSER'){?>
+								<?php //if($userRole != 'ENDUSER'){?>
 								<th class='font-weight-bold text-white shdiv_Qualify'>Qualify</th>
 								<th class='font-weight-bold text-white shdiv_Name'>Name</th> 
 								<th class='font-weight-bold text-white shdiv_Phone'>Phone</th> 
 								<th class='font-weight-bold text-white shdiv_Email'>Email</th>
-								<?php } ?> 
+								<?php //} ?> 
 								<th class='font-weight-bold text-white shdiv_Source'>Source</th> 
 								<th style='min-width:80px !important;' class='font-weight-bold text-white shdiv_Scraped_Date'>Scraped Date</th> 
 								<th style='min-width:80px !important;' class='font-weight-bold text-white shdiv_Posted_Date'>Posted Date</th> 
@@ -221,12 +224,12 @@
 								<a href="<?php echo $jobListing['job_url']; ?>" target='_blank' title="View Post"><i class="fa fa-anchor icon-blue m-r-5"></i></a>
 							</td>
 							<td><?php echo $jobListing['result_id']; ?></td>
-							<?php if($userRole != 'ENDUSER'){?>
-								<td class='shdiv_Qualify'><?php $name="qualify_$result_id"; echo form_dropdown($name, $qualifyArr, $jobListing['qualify'],' style="height:22px;" id="'.$name.'" class="class-qualify "'); ?></td>
-								<td class='shdiv_Name'><input type='text' class="class-name" name='<?php echo 'name_'.$result_id; ?>' id='<?php echo 'name_'.$result_id; ?>' value='<?php echo $jobListing['name']; ?>' /></td>
-								<td class='shdiv_Phone'><input type='text' class="class-phone" name='<?php echo 'phone_'.$result_id; ?>' id='<?php echo 'phone_'.$result_id; ?>' value='<?php echo $jobListing['phone']; ?>' /></td>
-								<td class='shdiv_Email'><input type='text' class="class-email" name='<?php echo 'email_'.$result_id; ?>' id='<?php echo 'email_'.$result_id; ?>' value='<?php echo $jobListing['email']; ?>' /></td>
-							<?php } ?>
+							<?php //if($userRole != 'ENDUSER'){?>
+								<td class='shdiv_Qualify'><?php $name="qualify_$result_id"; echo form_dropdown($name, $qualifyArr, $jobListing['qualify'],' '.$readonlyForEndUser.' style="height:22px;" id="'.$name.'" class="class-qualify "'); ?></td>
+								<td class='shdiv_Name'><input type='text' class="class-name" name='<?php echo 'name_'.$result_id; ?>' id='<?php echo 'name_'.$result_id; ?>' value='<?php echo $jobListing['name']; ?>' <?php echo $readonlyForEndUser; ?> /></td>
+								<td class='shdiv_Phone'><input type='text' class="class-phone" name='<?php echo 'phone_'.$result_id; ?>' id='<?php echo 'phone_'.$result_id; ?>' value='<?php echo $jobListing['phone']; ?>' <?php echo $readonlyForEndUser; ?>/></td>
+								<td class='shdiv_Email'><input type='text' class="class-email" name='<?php echo 'email_'.$result_id; ?>' id='<?php echo 'email_'.$result_id; ?>' value='<?php echo $jobListing['email']; ?>' <?php echo $readonlyForEndUser; ?> /></td>
+							<?php //} ?>
 							<td class='shdiv_Source'><?php echo $jobListing['url']; ?></td>
 							<td class='shdiv_Scraped_Date'><?php echo $jobListing['scraped_date']; ?></td>
 							<td class='shdiv_Posted_Date'><?php echo $jobListing['posted_date']; ?></td>

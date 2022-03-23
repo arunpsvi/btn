@@ -133,8 +133,11 @@ class Download extends CI_Controller {
 		
 		$qualifyArray=svi_buildArray($this->common_model->get_qualify(),'name','name',' ');
 		$qualifySearchArray=svi_buildArray($this->common_model->get_qualify(),'name','name','All');
-		$qualifySearchArray['-----']='---------------------';
-		$qualifySearchArray['ADD#NEW']='Add new';
+		if($this->session->userdata('role') != 'ENDUSER'){
+			$qualifySearchArray['-----']='---------------------';
+			$qualifySearchArray['ADD#NEW']='Add new';
+		}
+		
 
 		$data['qualify']=$this->input->get('qualify');
 		$data['qualifySearchArr']=$qualifySearchArray;
@@ -408,6 +411,9 @@ class Download extends CI_Controller {
 	}
 
     public function updateRecords() {
+		if($this->session->userdata('role') == 'ENDUSER'){
+			return false;
+		}
 		$id=$this->input->get('id');
 		$qualify=$this->input->get('qualify')."";
 		$updateQualify=$this->input->get('updateQualify')."";
@@ -434,7 +440,9 @@ class Download extends CI_Controller {
 	} 
 	
 	public function delete() {
-		
+		if($this->session->userdata('role') == 'ENDUSER'){
+			return false;
+		}
 		$record_delete=$this->input->post('record_delete');
 		$recordsToDelete='';
 		foreach($record_delete as $key=>$val){
@@ -500,17 +508,10 @@ class Download extends CI_Controller {
 	# createArray -- Create array of all columns available in the table of database
 	function createJsonObj($jobDetail){
 		$jsonArr=Array();
-		if($this->session->userdata('role') == 'ENDUSER'){
-			$jsonArr['qualify']='';	
-			$jsonArr['name']='';	
-			$jsonArr['phone']='';	
-			$jsonArr['email']='';
-		}else{
-			$jsonArr['qualify']=$jobDetail->qualify;	
-			$jsonArr['name']=$jobDetail->name;	
-			$jsonArr['phone']=$jobDetail->phone;	
-			$jsonArr['email']=$jobDetail->email;
-		}
+		$jsonArr['qualify']=$jobDetail->qualify;	
+		$jsonArr['name']=$jobDetail->name;	
+		$jsonArr['phone']=$jobDetail->phone;	
+		$jsonArr['email']=$jobDetail->email;
 		$jsonArr['result_id']=$jobDetail->result_id;	
 		$jsonArr['bot_name']=$this->db->get_where('keywords',array('keyword_id'=>$jobDetail->search_id))->row()->search_name;	
 		$jsonArr['website_name']=$this->db->get_where('websites',array('id'=>$jobDetail->website_id))->row()->name;	

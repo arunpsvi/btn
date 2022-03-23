@@ -24,6 +24,9 @@ class Common extends CI_Controller {
 		$this->common_model->update($dataToUpdate, 'notification',$updateCondition);
     }
 	public function addQualify() {  
+		if($this->session->userdata('role') == 'ENDUSER'){
+			return false;
+		}
 		if(!empty($this->input->get('qualifyName'))){
 			$result=Array();
 			$data=array();

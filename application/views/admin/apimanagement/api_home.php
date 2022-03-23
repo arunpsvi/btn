@@ -28,33 +28,42 @@
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label class="control-label ">API Access</label>
-                                    <input type="text" name="api_access" id="api_access" readonly class="form-control" value="
-                                    <?php                                   
+                                    <input type="text" name="api_access" id="api_access" readonly class="form-control" value="<?php                                   
                                         if($api_access==0) {
                                             echo 'No';
                                         }else{
                                             echo 'Yes';
-                                        }
-                                    ?>" >
+                                        } ?>" >
                                 </div>
                             </div>
                             
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label ">API Key</label>
-                                    <input type="text" name="api_key" id="api_key" readonly value="
-                                    <?php 
+                                    <input type="text" name="api_key" id="api_key" readonly value="<?php 
                                         if($api_access==1){
                                             if(!empty($api_key)) { 
                                                 echo $api_key;
                                             }   
-                                        }
-                                       
+                                        }                                       
                                     ?>" class="form-control" placeholder="">
                                 </div>
                             </div>
                         <!--/row-->
-                        </div>							
+                        </div>
+						<?php if($api_access==1){
+                            	if(!empty($api_key)) { ?>
+									<div class="row">
+										<div class="col-md-8">
+											<div class="form-group ">
+												<label for="apiDoc">API Document</label>
+												<textarea class="form-control text-left" id="apiDoc" rows="8" readonly>API Name:- GetJobs&#13;&#10;Method :- Get&#13;&#10;API Url:-https://staging.botnum.com/index.php/API/jobs?bid=BOTID&pageNo=PageNumber&#13;&#10;&#13;&#10;Header Information&#13;&#10;content-type:application/json&#13;&#10;apikey:<?php echo $api_key; ?>
+												</textarea>
+											</div>
+										</div>
+									</div>	
+								<?php } 
+								} ?>				
                     </div>					
 					
 				</div>

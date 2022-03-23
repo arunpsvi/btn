@@ -37,6 +37,10 @@
 			}
 		}
 		$hidSelectedOptions=rtrim($hidSelectedOptions, ',');
+		$readonlyForEndUser='';
+		if($userRole == 'ENDUSER'){
+			$readonlyForEndUser=' disabled ';
+		}
 ?>
     <!-- Start Page Content -->
 
@@ -105,14 +109,14 @@
 								<input type="date" name="scraped_date_end" id="scraped_date_end" class="form-control my-datepicker" value="<?php if(!empty($scraped_date_end)) { echo $scraped_date_end; } ?>" autocomplete="<?php echo $autocomplete; ?>">
 							</div>
 						</div>
-						<?php if($userRole != 'ENDUSER'){?>
+						<?php //if($userRole != 'ENDUSER'){?>
 						<div class="col-md-2">
 							<div class="form-group" id='qualifydropdown'>
 								<label class="control-label">Qualify</label>
 								<?php echo form_dropdown('qualify', $qualifySearchArr, $qualify,'class="form-control" id="qualify"'); ?>
 							</div>
 						</div>
-						<?php } ?>
+						<?php //} ?>
 						<?php if($userRole != 'ENDUSER'){?>
 						<div class="col-md-4">
 							<div class="form-group">
@@ -188,10 +192,10 @@
 								<?php } ?>
 								<th class='font-weight-bold text-white'>Action</th>
 								<th class='font-weight-bold text-white'>No.</th>
-								<?php if($userRole != 'ENDUSER'){?>
+								<?php //if($userRole != 'ENDUSER'){?>
 								<th class='font-weight-bold text-white shdiv_Qualify'>Qualify</th>
 								<th class='font-weight-bold text-white shdiv_DecisionMaker'>Decision Maker</th>
-								<?php } ?>
+								<?php //} ?>
 								<th class='font-weight-bold text-white shdiv_Post_Title'>Post Title</th>							
 								<th class='font-weight-bold text-white shdiv_Post_Url'>Post Url</th>
 								<th class='font-weight-bold text-white shdiv_Description'>Description</th>
@@ -260,10 +264,10 @@
 								<a href="<?php echo $jobListing['job_url']; ?>" target='_blank' title="View Post"><i class="fa fa-anchor icon-blue m-r-5"></i></a>
 							</td>
 							<td><?php echo $jobListing['result_id']; ?></td>
-							<?php if($userRole != 'ENDUSER'){?>
-							<td class='shdiv_Qualify'><?php $name="qualify_$result_id"; echo form_dropdown($name, $qualifyArr, $jobListing['qualify'],' style="height:22px;" id="'.$name.'" class="class-qualify"'); ?></td>
-							<td class='shdiv_DecisionMaker'><input type='text' class="class-decision_maker" name='<?php echo 'decisionmaker_'.$result_id; ?>' id='<?php echo 'decisionmaker_'.$result_id; ?>' value='<?php echo $jobListing['decision_maker']; ?>' /></td>
-							<?php } ?>
+							<?php //if($userRole != 'ENDUSER'){?>
+							<td class='shdiv_Qualify'><?php $name="qualify_$result_id"; echo form_dropdown($name, $qualifyArr, $jobListing['qualify'],' '.$readonlyForEndUser.' style="height:22px;" id="'.$name.'" class="class-qualify"'); ?></td>
+							<td class='shdiv_DecisionMaker'><input type='text' class="class-decision_maker" name='<?php echo 'decisionmaker_'.$result_id; ?>' id='<?php echo 'decisionmaker_'.$result_id; ?>' value='<?php echo $jobListing['decision_maker']; ?>' <?php echo $readonlyForEndUser; ?> /></td>
+							<?php //} ?>
 							<td class='shdiv_Post_Title' ><?php echo $jobListing['title']; ?></td>
 							<td class='shdiv_Post_Url'><a target='_blank' href="<?php echo $jobListing['job_url']; ?>"><?php echo $jobListing['job_url']; ?></a></td>
 							<td class='shdiv_Description'><?php echo $jobListing['description']; ?></td>
