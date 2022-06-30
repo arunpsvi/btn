@@ -148,7 +148,7 @@ class Linkedin extends CI_Controller {
 					}					
 				}	
 				$counter++;
-				if($counter>5){
+				/*if($counter>20){
 				    if(!empty($this->schedule_id)){
         		        $dataToUpdate=Array();
         		        $dataToUpdate['status']='C';
@@ -158,7 +158,7 @@ class Linkedin extends CI_Controller {
         		        $this->common_model->update($dataToUpdate, 'schedules',$updateCondition);   
         		    }
 					exit;
-				}
+				}*/
 			}
 			$data = array(
 				'progress' => "Scraping Completed..."
@@ -211,14 +211,17 @@ class Linkedin extends CI_Controller {
 		if(preg_match('/We\s*couldn\&rsquo;t\s*find/is',$resultFile,$matcher)){
 			return;
 		}
-		while(preg_match('/<span class="screen-reader-text">/is',$resultFile,$matcher)){
+		#$this->writeToFile('linkedin.html',$resultFile);
+		
+		while(preg_match('/(<span class="screen-reader-text">|data-tracking-control-name="public_jobs_jserp-result_search-card")/is',$resultFile,$matcher)){
 			
 			$resultFileTmp=$this->before($matcher[0],$resultFile);
 			$resultFile=$this->after($matcher[0],$resultFile);	
 			$uniqueId='';
+			
 			if(preg_match('/.*href="(.*?)"/is',$resultFileTmp,$matcher1)){
 				$url=$matcher1[1];
-				//print $url."<br>";
+				$url=preg_replace('/\&amp;/is','&',$url);				
 			}
 			if(preg_match('/.*jobPosting:(.*?)"/is',$resultFileTmp,$matcher1)){
 				$uniqueId=$matcher1[1];
@@ -267,13 +270,11 @@ class Linkedin extends CI_Controller {
 			}		
 			
 			$resultId = $this->db->get_where('results',array('unique_id'=>$uniqueId,'website_id'=>$categoryList['website_id']))->row()->result_id;
-			
 			if(empty($resultId)){
 				#$url='https://www.linkedin.com/jobs/view/mid-level-python-developer-w-2-hourly-tx-at-howard-systems-international-2000052433?refId=4e651da7-fe51-47ae-a1db-cb82ed8c0e11&amp;position=1&amp;pageNum=0&amp;trk=public_jobs_job-result-card_result-card_full-click';
 				$this->emailArr=Array();
 				//print $url."<br>";
 				$this->scrapeData($url,$categoryList,$keywords,$websiteList,$uniqueId,$sid);
-				//exit;
 			}
 		}
 	}
@@ -281,7 +282,7 @@ class Linkedin extends CI_Controller {
 	function scrapeData($url,$categoryList,$keywords,$websiteList,$uniqueId,$sid){
 		$insertResult=0;
 		$resultFile=$this->fetchPage($url);
-		
+		#$this->writeToFile('scrape.html',$resultFile);
 		
 		$resultData=Array();
 		$resultData['job_url']=$url;
@@ -353,12 +354,11 @@ class Linkedin extends CI_Controller {
 		}else{
 			$resultData['exact_match']='N';
 		}
-
+		
 		$description=$resultData['description'];
 		$description=strip_tags($description,'');
-		#print_r($resultData);exit;
+	
 		if($this->checkKeywords($description,$keywords)){			
-
 			#print "Arun"; exit;
 			$companyUrl=$resultData['companyUrl'];
 			$companyUrl = str_replace('https://www.linkedin.com/company/','https://www.linkedin.com/organization-guest/company/',$companyUrl);
@@ -519,7 +519,8 @@ class Linkedin extends CI_Controller {
 		}
 		//  To Execute 'option' Array Into cURL Library & Store Returned Data Into $data
 		$data = $this->curl->execute();
-		if(empty($data)){
+		#if(empty($data)){
+		if(!preg_match('/linkedin/is',$data,$matcher)){	
 			$this->insertLogData['message']="Could not get response.";
 			$this->insertLogData['status']='0';
 		}else{
